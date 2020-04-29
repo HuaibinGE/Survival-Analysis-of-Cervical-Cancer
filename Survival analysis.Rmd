@@ -1,0 +1,200 @@
+---
+title: "Survival analysis"
+author: "Huaibin Ge"
+date: "5/23/2019"
+output: html_document
+---
+
+
+## 1. Load data
+Dataset obtained from https://www.nature.com/articles/nature21386. 
+```{r}
+library(readxl)
+library(tidyverse)
+data <- read_excel("Supplemental Table 1-CESC_Data_Summary_Table_Supplement_V2.xlsx", sheet = "supplemental table")
+```
+
+## clean data
+I rename those variables as the original one except for titile like "CLIN" and strange symbol like ``. Then I assign renamed variables to their desired type of numeric or factor. 
+```{r}
+data_surv = data %>% 
+  rename(batch_number = `CLIN:batch_number`,
+         age_at_initial_pathologic_diagnosis = `CLIN:age_at_initial_pathologic_diagnosis`,
+         vital_status = `CLIN:vital_status`,
+         days_to_last_followup = `CLIN:days_to_last_followup`,
+         days_to_last_known_alive = `CLIN:days_to_last_known_alive`,
+         days_to_death = `CLIN:days_to_death`,
+         Hys_LN = `CLIN:Hys_LN`,
+         Hys_LVSI_LN = `CLIN:Hys_LVSI_LN`,
+         race = `CLIN:race`,
+         ethnicity = `CLIN:ethnicity`,
+         Dx_merged = `CLIN:Dx_merged`,
+         HPV_status = `CLIN:HPV_status`,
+         HPV_Hcall = `CLIN:HPV_Hcall`,
+         HPV_Hclade = `CLIN:HPV_Hclade`,
+         HPV_clade_4 = `CLIN:HPV_clade_4`,
+         HPV_int1 = `CLIN:HPV_int1`,
+         clinStage = `CLIN:clinStage`,
+         dx_method = `CLIN:dx_method`,
+         LNposTF = `CLIN:LNposTF`,
+         lymphovascular_invasion_indicator = `CLIN:lymphovascular_invasion_indicator`,
+         tumorStatus2 = `CLIN:tumorStatus2`,
+         UCEC_like = `CLIN:UCEC-like`,
+         Purity_Absolute = `SAMP:Purity_Absolute`,
+         Ploidy_Absolute = `SAMP:Ploidy_Absolute`,
+         EMT_score = `SAMP:EMT_score`,
+         e6_cat_k4 = `CLIN:e6_cat_k4`,
+         e6ratio_cat_k4 = `CLIN:e6ratio_cat_k4`,
+         e6spl_cat_k4 = `CLIN:e6spl_cat_k4`,
+         e6sum_cat_k4 = `CLIN:e6sum_cat_k4`,
+         E6_counts_combined = `CLIN:E6_counts_combined`,
+         E6_spliced_normalized_counts =`CLIN:E6_spliced_normalized_counts`,
+         E6_unspliced_normalized_counts = `CLIN:E6_unspliced_normalized_counts`,
+         Ratio_E6_unspliced_to_spliced = `CLIN:Ratio_E6_unspliced_to_spliced`,
+         MutSig_rateNon_perMb = `SAMP:MutSig_rateNon_perMb`,
+         MutSig_rateSil_perMb = `SAMP:MutSig_rateSil_perMb`,
+         MutSig_rateTot_perMb = `SAMP:MutSig_rateTot_perMb`,
+         hyperMut = `SAMP:hyperMut`,
+         APOBEC_Category = `SAMP:APOBEC_Category`,
+         APOBEC_MutLoad_MinEstimate = `SAMP:APOBEC_MutLoad_MinEstimate`,
+         somatic_mutations_called = `SAMP:somatic_mutations_called`,
+         mRNAseq_data = `SAMP:mRNAseq_data`,
+         miRNAseq_data = `SAMP:miRNAseq_data`,
+         RPPA_data = `SAMP:RPPA_data`,
+         Meth_data = `SAMP:Meth_data`,
+         CN_data = `SAMP:CN_data`,
+         mRNAseq_k3 = `SAMP:mRNAseq_k3`,
+         miRNA_k6 = `SAMP:miRNA_k6`,
+         RPPA_k3 = `SAMP:RPPA_k3`,
+         CIMP_call = `SAMP:CIMP_call`,
+         CN_cluster = `SAMP:CN_cluster`,
+         iCluster_All_k3 = `SAMP:iCluster_All_k3`,
+         iCluster_Squam_k2 = `SAMP:iCluster_Squam_k2`,
+         iCluster_Adeno_k2 = `SAMP:iCluster_Adeno_k2`,
+         PARADIGM_k4 = `SAMP:PARADIGM_k4`,
+         APOBEC1_339 = `GEXP:APOBEC1:339`,
+         APOBEC3A_200315 = `GEXP:APOBEC3A:200315`,
+         APOBEC3B_9582 = `GEXP:APOBEC3B:9582`,
+         APOBEC3C_27350 = `GEXP:APOBEC3C:27350`,
+         APOBEC3D_140564 = `GEXP:APOBEC3D:140564`,
+         APOBEC3F_200316 = `GEXP:APOBEC3F:200316`,
+         APOBEC3G_60489 = `GEXP:APOBEC3G:60489`,
+         APOBEC3H_164668 = `GEXP:APOBEC3H:164668`
+         
+         ) %>% 
+  mutate(vital_status = as.factor(vital_status),
+         days_to_last_followup = as.numeric(days_to_last_followup),
+         days_to_death = as.numeric(days_to_death),
+         Hys_LN = as.factor(Hys_LN),
+         Hys_LVSI_LN = as.factor(Hys_LVSI_LN),
+         race = as.factor(race),
+         ethnicity = as.factor(ethnicity),
+         Dx_merged = as.factor(Dx_merged),
+         HPV_status = as.factor(HPV_status),
+         HPV_status = as.factor(HPV_status),
+         HPV_Hcall = as.factor(HPV_Hcall),
+         HPV_Hclade  = as.factor(HPV_Hclade),
+         HPV_clade_4 = as.factor(HPV_clade_4),
+         HPV_int1 = as.factor(HPV_int1),
+         clinStage = as.factor(clinStage),
+         dx_method = as.factor(dx_method),
+         LNposTF  = as.factor(LNposTF),
+         lymphovascular_invasion_indicator = as.factor(lymphovascular_invasion_indicator),
+         tumorStatus2 = as.factor(tumorStatus2),
+         UCEC_like = as.factor(UCEC_like),
+         e6_cat_k4 = as.factor(e6_cat_k4),
+         e6ratio_cat_k4 = as.factor(e6ratio_cat_k4),
+         e6spl_cat_k4 = as.factor(e6spl_cat_k4),
+         e6sum_cat_k4 = as.factor(e6sum_cat_k4),
+         E6_counts_combined = as.numeric(E6_counts_combined),
+         E6_spliced_normalized_counts =as.numeric(E6_spliced_normalized_counts),
+         E6_unspliced_normalized_counts = as.numeric(E6_unspliced_normalized_counts),
+         Ratio_E6_unspliced_to_spliced = as.numeric(Ratio_E6_unspliced_to_spliced),
+         hyperMut = as.factor(hyperMut),
+         APOBEC_Category = as.factor(APOBEC_Category),
+         somatic_mutations_called = as.factor(somatic_mutations_called),
+         mRNAseq_data = as.factor(mRNAseq_data),
+         miRNAseq_data = as.factor(miRNAseq_data),
+         RPPA_data = as.factor(RPPA_data),
+         Meth_data = as.factor(Meth_data),
+         CN_data = as.factor(CN_data),
+         mRNAseq_k3 = as.factor(mRNAseq_k3),
+         miRNA_k6 = as.factor(miRNA_k6),
+         RPPA_k3 = as.factor(RPPA_k3),
+         CIMP_call = as.factor(CIMP_call),
+         CN_cluster = as.factor(CN_cluster),
+         iCluster_All_k3 = as.factor(iCluster_All_k3),
+         iCluster_Squam_k2 = as.factor(iCluster_Squam_k2),
+         iCluster_Adeno_k2 = as.factor(iCluster_Adeno_k2),
+         PARADIGM_k4 = as.factor(PARADIGM_k4)
+         )
+
+#summary(data_surv)
+```
+
+Preprocess
+Select curious variable and transform categorical variable into dummy variable becasue Lasso can only deal with continuos variable or dummy variable. 
+```{r}
+library(caret)
+library(glmnet)
+library(corrplot)
+library(survminer)
+library(survival)
+# Capture covariates
+Cov <- data.frame(data_surv[,-c(1:2, 5, 7, 9, 22, 27:34, 41:49, 51:ncol(data_surv))])
+
+# Deal with factors
+dmy = dummyVars("~.", data = Cov)
+x_dummy = data.frame(predict(dmy, newdata = Cov))
+x_dummy = na.omit(x_dummy)
+x_dummy$age_at_initial_pathologic_diagnosis = cut(x_dummy$age_at_initial_pathologic_diagnosis, breaks = c(20, 39, 59, 79), right = FALSE)
+x_dummy1 = x_dummy[which(x_dummy$days_to_last_known_alive>0),]
+x_dummy1 = na.omit(x_dummy1)
+y_input = Surv(x_dummy1$days_to_last_known_alive, x_dummy1$vital_status.Dead)
+x_dummy1 = x_dummy1 %>% select(-c(vital_status.Alive, vital_status.Dead, days_to_last_known_alive, age_at_initial_pathologic_diagnosis))
+x_input <- model.matrix(~., data = x_dummy1)[,-1]
+```
+
+
+### 2. LASSO to select variables
+```{r}
+#fit = glmnet(x_input, y_input, family = "cox", alpha = 1)
+cv.lasso = cv.glmnet(x_input, y_input, type.measure = "mse", family = "cox")
+plot(cv.lasso)
+
+# Select best model
+fit = glmnet(x_input, y_input, family = "cox", lambda = cv.lasso$lambda.min)
+
+# Manual selection
+fit$beta[fit$beta[,1]!=0,]
+selected = c("Hys_LN.LNneg","clinStage.II",
+             "lymphovascular_invasion_indicator.ABSENT", "EMT_score","days_to_last_known_alive",
+             "vital_status.Dead",
+             "age_at_initial_pathologic_diagnosis")
+Lasso_st = x_dummy[,selected]
+
+# Multivariate cox model
+#summary(coxph(Surv(days_to_last_known_alive, vital_status.Dead)~., data = Lasso_st))
+summary(os <- coxph(Surv(days_to_last_known_alive, vital_status.Dead)~Hys_LN.LNneg+clinStage.II+lymphovascular_invasion_indicator.ABSENT+EMT_score+age_at_initial_pathologic_diagnosis, data = Lasso_st))
+```
+
+significance variable: Hys_LN.LNneg, clinStage.II, lymphovascular_invasion_indicator.ABSENT, EMT_score
+
+
+### Survival analysis plot
+```{r}
+#library(survminer)
+ggsurvplot(survfit(Surv(days_to_last_known_alive, vital_status.Dead)~Hys_LN.LNneg, data = Lasso_st)) 
+ggsurvplot(survfit(Surv(days_to_last_known_alive, vital_status.Dead)~clinStage.II, data = Lasso_st))
+ggsurvplot(survfit(Surv(days_to_last_known_alive, vital_status.Dead)~lymphovascular_invasion_indicator.ABSENT, data = Lasso_st))
+#ggsurvplot(survfit(Surv(days_to_last_known_alive, vital_status.Dead)~EMT_score, data = Lasso_st))
+#table(data_surv$clinStage, data_surv$vital_status)
+```
+
+### Test significance for cox model
+```{r}
+#summary(os <- coxph(Surv(days_to_last_known_alive, vital_status.Dead)~., data = Lasso_st))
+cox.zph(os)
+```
+
+p>0.05, follow proportianal hazards, and vise versa.
